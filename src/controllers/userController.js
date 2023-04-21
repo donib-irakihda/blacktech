@@ -40,6 +40,41 @@ const registerUser = async (req, res) => {
   }
 };
 
+const loginUser = async (req,res) => {
+  const { email, password } = req.body
 
+  try {
+    const existingUser = await User.findOne({email: email})
+    if(!existingUser) {
+      return res.status(404).json(`User with this email ${email} doesnot exist`)
+    }
 
-module.exports = { registerUser };
+    const matchPassword = await bcrypt.compare(password, existingUser.password)
+    if(!matchPassword) {
+      return res.status(500).json({error: "Invalid Credentials"})
+    }
+
+    const token = jwt.sign({email: existingUser.email, id: existingUser._id}, SECRET_JWT)
+
+    req.session.user = {};
+    req.session.user._id = existingUser._id
+
+    res.status(200).json({message: "Login Success", user: existingUser, token: token})
+
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({message: "Something went wrong!!!"})
+  }
+}
+
+const logoutUser = async (req, res) => {
+  try {
+    req.session.destroy();
+    res.status(200).json({message: "Logout success"})
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({error: "Something went wrong"})
+  }
+}
+
+module.exports = { registerUser, loginUser, logoutUser };

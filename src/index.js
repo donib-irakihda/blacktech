@@ -1,4 +1,5 @@
 const express = require("express");
+const session = require('express-session')
 
 const userRouter = require("./routes/userRoutes");
 
@@ -8,9 +9,15 @@ require("./configs/dbConfig")
 
 app.use(express.json())
 
-
+// Session configuration
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+}))
 
 app.use('/api/user', userRouter)
+
 
 const PORT = process.env.PORT || 8080;
 if (process.env.NODE_ENV !== "test")
