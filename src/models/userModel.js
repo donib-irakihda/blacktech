@@ -21,6 +21,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['admin', 'user'],
     required: true,
+    default: 'user'
   },
   // isVerified: {
   //   type: Number,
